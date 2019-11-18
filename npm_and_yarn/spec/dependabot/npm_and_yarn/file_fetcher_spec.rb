@@ -390,6 +390,24 @@ RSpec.describe Dependabot::NpmAndYarn::FileFetcher do
       end
     end
 
+    context "with a tarball path" do
+      before do
+        stub_request(:get, File.join(url, "package.json?ref=sha")).
+          with(headers: { "Authorization" => "token token" }).
+          to_return(
+            status: 200,
+            body: fixture("github", "package_json_with_tarball_path.json"),
+            headers: json_header
+          )
+      end
+
+      it "doesn't fetch tarball path dependency" do
+        expect(file_fetcher_instance.files.map(&:name)).to eq(
+          ["package.json", "package-lock.json"]
+        )
+      end
+    end
+
     context "that has an unfetchable path" do
       before do
         stub_request(:get, File.join(url, "deps/etag/package.json?ref=sha")).

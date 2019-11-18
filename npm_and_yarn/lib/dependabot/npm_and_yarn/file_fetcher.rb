@@ -125,6 +125,10 @@ module Dependabot
 
         path_dependency_details(fetched_files).each do |name, path|
           path = path.gsub(PATH_DEPENDENCY_CLEAN_REGEX, "")
+          # Ignore packed tarball packages as these can get huge and are not
+          # needed for lockfile resolution
+          next if path.end_with?(".tgz")
+
           filename = File.join(path, "package.json")
           cleaned_name = Pathname.new(filename).cleanpath.to_path
           next if fetched_files.map(&:name).include?(cleaned_name)
